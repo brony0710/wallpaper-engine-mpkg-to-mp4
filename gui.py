@@ -19,9 +19,7 @@ from PIL import Image
 from extractor import (
     inspect_we_package,
     extract_custom_entries,
-    sanitize_filename,
     VIDEO_EXTENSIONS,
-    AUDIO_EXTENSIONS,
 )
 
 
@@ -29,7 +27,7 @@ class ConverterApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # Konfigurasi Tema & Jendela
+        # Theme & Window Setup
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
 
@@ -63,11 +61,11 @@ class ConverterApp(ctk.CTk):
         )
         title_lbl.pack(side="left")
 
-        # Tombol Info Lisensi & Solusi Jam
+        # About & Clock Info Button
         btn_about = ctk.CTkButton(
             top_row,
-            text="ℹ️ Info Lisensi & Solusi Jam",
-            width=180,
+            text="ℹ️ License & Clock Fix",
+            width=160,
             height=28,
             font=ctk.CTkFont(size=11, weight="bold"),
             fg_color=("#374151", "#27272a"),
@@ -78,7 +76,7 @@ class ConverterApp(ctk.CTk):
 
         sub_lbl = ctk.CTkLabel(
             header,
-            text="Pratinjau isi wallpaper, pilah berkas output, dan dapatkan video MP4 murni tanpa gangguan widget jam.",
+            text="Preview package assets, selectively extract media, and retrieve pristine MP4 video without clock widgets.",
             font=ctk.CTkFont(size=12),
             text_color="gray"
         )
@@ -88,30 +86,30 @@ class ConverterApp(ctk.CTk):
         path_bar = ctk.CTkFrame(self, corner_radius=10)
         path_bar.pack(fill="x", padx=16, pady=4)
 
-        # Baris Pilih File
+        # File Input Row
         f_row = ctk.CTkFrame(path_bar, fg_color="transparent")
         f_row.pack(fill="x", padx=12, pady=(8, 4))
 
-        ctk.CTkLabel(f_row, text="File Input:", width=80, anchor="w", font=ctk.CTkFont(weight="bold")).pack(side="left")
-        self.file_entry = ctk.CTkEntry(f_row, placeholder_text="Pilih berkas .mpkg atau .pkg untuk diinspeksi...", font=ctk.CTkFont(size=11))
+        ctk.CTkLabel(f_row, text="Input File:", width=80, anchor="w", font=ctk.CTkFont(weight="bold")).pack(side="left")
+        self.file_entry = ctk.CTkEntry(f_row, placeholder_text="Select a .mpkg or .pkg file to inspect...", font=ctk.CTkFont(size=11))
         self.file_entry.pack(side="left", fill="x", expand=True, padx=(0, 8))
-        
+
         self.btn_browse_file = ctk.CTkButton(
-            f_row, text="📂 Buka Berkas", width=120, command=self._choose_and_load_file
+            f_row, text="📂 Open File", width=120, command=self._choose_and_load_file
         )
         self.btn_browse_file.pack(side="right")
 
-        # Baris Folder Output
+        # Output Folder Row
         o_row = ctk.CTkFrame(path_bar, fg_color="transparent")
         o_row.pack(fill="x", padx=12, pady=(0, 8))
 
-        ctk.CTkLabel(o_row, text="Simpan ke:", width=80, anchor="w", font=ctk.CTkFont(weight="bold")).pack(side="left")
+        ctk.CTkLabel(o_row, text="Save to:", width=80, anchor="w", font=ctk.CTkFont(weight="bold")).pack(side="left")
         self.out_entry = ctk.CTkEntry(o_row, font=ctk.CTkFont(size=11))
         self.out_entry.insert(0, self.output_dir)
         self.out_entry.pack(side="left", fill="x", expand=True, padx=(0, 8))
 
         self.btn_browse_out = ctk.CTkButton(
-            o_row, text="📁 Ubah Folder", width=120, fg_color=("#475569", "#334155"), command=self._choose_output_dir
+            o_row, text="📁 Browse Folder", width=120, fg_color=("#475569", "#334155"), command=self._choose_output_dir
         )
         self.btn_browse_out.pack(side="right")
 
@@ -119,42 +117,42 @@ class ConverterApp(ctk.CTk):
         body = ctk.CTkFrame(self, fg_color="transparent")
         body.pack(fill="both", expand=True, padx=16, pady=6)
 
-        # LEFT COLUMN: Preview & Info (Lebar tetap ~330px)
+        # LEFT COLUMN: Preview & Info (Fixed width ~330px)
         left_col = ctk.CTkFrame(body, width=330, corner_radius=12)
         left_col.pack(side="left", fill="y", padx=(0, 8), pady=0)
         left_col.pack_propagate(False)
 
-        ctk.CTkLabel(left_col, text="🖼️ Pratinjau Wallpaper", font=ctk.CTkFont(size=13, weight="bold")).pack(anchor="w", padx=12, pady=(10, 4))
+        ctk.CTkLabel(left_col, text="🖼️ Wallpaper Preview", font=ctk.CTkFont(size=13, weight="bold")).pack(anchor="w", padx=12, pady=(10, 4))
 
         # Thumbnail Image Display
         self.thumb_frame = ctk.CTkFrame(left_col, height=190, fg_color=("#18181b", "#121214"), corner_radius=8)
         self.thumb_frame.pack(fill="x", padx=12, pady=(0, 8))
         self.thumb_frame.pack_propagate(False)
 
-        self.thumb_label = ctk.CTkLabel(self.thumb_frame, text="Tidak ada pratinjau\n(Pilih file terlebih dahulu)", text_color="gray")
+        self.thumb_label = ctk.CTkLabel(self.thumb_frame, text="No preview available\n(Please select a package first)", text_color="gray")
         self.thumb_label.pack(expand=True)
 
         # Metadata Card
         meta_frame = ctk.CTkScrollableFrame(left_col, corner_radius=8, fg_color=("#27272a", "#1e1e24"))
         meta_frame.pack(fill="both", expand=True, padx=12, pady=(0, 10))
 
-        self.lbl_title = ctk.CTkLabel(meta_frame, text="Judul: -", font=ctk.CTkFont(size=13, weight="bold"), anchor="w", wraplength=280)
+        self.lbl_title = ctk.CTkLabel(meta_frame, text="Title: -", font=ctk.CTkFont(size=13, weight="bold"), anchor="w", wraplength=280)
         self.lbl_title.pack(fill="x", pady=2)
 
-        self.lbl_type = ctk.CTkLabel(meta_frame, text="Tipe: -", font=ctk.CTkFont(size=11), text_color="gray", anchor="w")
+        self.lbl_type = ctk.CTkLabel(meta_frame, text="Type: -", font=ctk.CTkFont(size=11), text_color="gray", anchor="w")
         self.lbl_type.pack(fill="x", pady=1)
 
         self.lbl_format = ctk.CTkLabel(meta_frame, text="Format: -", font=ctk.CTkFont(size=11), text_color="gray", anchor="w")
         self.lbl_format.pack(fill="x", pady=1)
 
-        self.lbl_size = ctk.CTkLabel(meta_frame, text="Ukuran Paket: -", font=ctk.CTkFont(size=11), text_color="gray", anchor="w")
+        self.lbl_size = ctk.CTkLabel(meta_frame, text="Package Size: -", font=ctk.CTkFont(size=11), text_color="gray", anchor="w")
         self.lbl_size.pack(fill="x", pady=1)
 
-        # Alert Box Masalah Jam
+        # Clock Widget Alert Box
         self.clock_alert_box = ctk.CTkFrame(meta_frame, corner_radius=6, fg_color=("#1e3a2f", "#142c22"))
         self.lbl_clock_status = ctk.CTkLabel(
             self.clock_alert_box,
-            text="⏱️ Status Jam: Siap diperiksa",
+            text="⏱️ Clock Status: Ready to inspect",
             font=ctk.CTkFont(size=11, weight="bold"),
             text_color=("#86efac", "#4ade80"),
             wraplength=270,
@@ -166,21 +164,21 @@ class ConverterApp(ctk.CTk):
         right_col = ctk.CTkFrame(body, corner_radius=12)
         right_col.pack(side="right", fill="both", expand=True, pady=0)
 
-        # Header Filter Berkas
+        # Filter Header
         filter_header = ctk.CTkFrame(right_col, fg_color="transparent")
         filter_header.pack(fill="x", padx=12, pady=(10, 4))
 
         ctk.CTkLabel(
-            filter_header, text="📋 Daftar Berkas di Dalam Paket (Pilih yang ingin diekstrak):",
+            filter_header, text="📋 Package Contents (Select files to extract):",
             font=ctk.CTkFont(size=13, weight="bold")
         ).pack(side="left")
 
-        # Tombol Filter Cepat
+        # Quick Filter Buttons
         btn_filter_frame = ctk.CTkFrame(right_col, fg_color="transparent")
         btn_filter_frame.pack(fill="x", padx=12, pady=(0, 6))
 
         ctk.CTkButton(
-            btn_filter_frame, text="🎬 Hanya Video", width=95, height=24, font=ctk.CTkFont(size=11),
+            btn_filter_frame, text="🎬 Video Only", width=95, height=24, font=ctk.CTkFont(size=11),
             command=lambda: self._apply_filter('video')
         ).pack(side="left", padx=(0, 4))
 
@@ -190,42 +188,42 @@ class ConverterApp(ctk.CTk):
         ).pack(side="left", padx=(0, 4))
 
         ctk.CTkButton(
-            btn_filter_frame, text="Semua", width=65, height=24, font=ctk.CTkFont(size=11),
+            btn_filter_frame, text="Select All", width=75, height=24, font=ctk.CTkFont(size=11),
             fg_color=("#475569", "#334155"), command=lambda: self._apply_filter('all')
         ).pack(side="left", padx=(0, 4))
 
         ctk.CTkButton(
-            btn_filter_frame, text="Batal Pilih", width=75, height=24, font=ctk.CTkFont(size=11),
+            btn_filter_frame, text="Deselect All", width=85, height=24, font=ctk.CTkFont(size=11),
             fg_color="transparent", text_color="gray", command=lambda: self._apply_filter('none')
         ).pack(side="left")
 
-        # Scrollable Frame untuk Daftar File
+        # Scrollable Frame for File Checklist
         self.file_list_frame = ctk.CTkScrollableFrame(right_col, corner_radius=8, fg_color=("#18181b", "#141416"))
         self.file_list_frame.pack(fill="both", expand=True, padx=12, pady=(0, 8))
 
         self.empty_file_lbl = ctk.CTkLabel(
             self.file_list_frame,
-            text="Pilih file .mpkg / .pkg di atas untuk menampilkan daftar berkas.",
+            text="Open a .mpkg or .pkg file above to inspect its contents.",
             text_color="gray"
         )
         self.empty_file_lbl.pack(expand=True, pady=40)
 
-        # Pengaturan Opsi Penamaan Output
+        # Output Naming Format
         naming_row = ctk.CTkFrame(right_col, fg_color="transparent")
         naming_row.pack(fill="x", padx=12, pady=(0, 8))
 
-        ctk.CTkLabel(naming_row, text="Penamaan File Output:", font=ctk.CTkFont(size=12, weight="bold")).pack(side="left", padx=(0, 8))
+        ctk.CTkLabel(naming_row, text="Output Naming:", font=ctk.CTkFont(size=12, weight="bold")).pack(side="left", padx=(0, 8))
         self.naming_combo = ctk.CTkComboBox(
             naming_row,
             values=[
-                "Gunakan Judul Asli Wallpaper (Rekomendasi)",
-                "Gunakan Nama Berkas Asli di Dalam Paket",
-                "Gunakan Nama File Arsip .mpkg"
+                "Use Wallpaper Title (Recommended)",
+                "Use Internal Package Filename",
+                "Use .mpkg Archive Filename"
             ],
             width=300,
             font=ctk.CTkFont(size=11)
         )
-        self.naming_combo.set("Gunakan Judul Asli Wallpaper (Rekomendasi)")
+        self.naming_combo.set("Use Wallpaper Title (Recommended)")
         self.naming_combo.pack(side="left", fill="x", expand=True)
 
         # 4. Action & Progress Area
@@ -234,7 +232,7 @@ class ConverterApp(ctk.CTk):
 
         self.btn_extract = ctk.CTkButton(
             bottom_bar,
-            text="🚀 Ekstrak Berkas Terpilih",
+            text="🚀 Extract Selected Files",
             height=40,
             font=ctk.CTkFont(size=14, weight="bold"),
             fg_color=("#16a34a", "#15803d"),
@@ -245,7 +243,7 @@ class ConverterApp(ctk.CTk):
 
         self.btn_open_folder = ctk.CTkButton(
             bottom_bar,
-            text="📂 Buka Folder Hasil",
+            text="📂 Open Output Folder",
             height=40,
             font=ctk.CTkFont(size=12),
             command=self._open_output_folder
@@ -254,7 +252,7 @@ class ConverterApp(ctk.CTk):
 
         self.btn_play_preview = ctk.CTkButton(
             bottom_bar,
-            text="▶️ Putar Video",
+            text="▶️ Play Video",
             height=40,
             width=110,
             font=ctk.CTkFont(size=12),
@@ -276,7 +274,7 @@ class ConverterApp(ctk.CTk):
         self.lbl_progress = ctk.CTkLabel(prog_bar_frame, text="0%", width=45, font=ctk.CTkFont(size=11, weight="bold"))
         self.lbl_progress.pack(side="right")
 
-        # 5. Log Console (Collapsible / Compact)
+        # 5. Log Console
         log_frame = ctk.CTkFrame(self, height=100, corner_radius=10)
         log_frame.pack(fill="x", padx=16, pady=(2, 12))
         log_frame.pack_propagate(False)
@@ -284,7 +282,7 @@ class ConverterApp(ctk.CTk):
         self.log_box = ctk.CTkTextbox(log_frame, font=ctk.CTkFont(family="Consolas", size=10), wrap="word")
         self.log_box.pack(fill="both", expand=True, padx=6, pady=6)
 
-        self._log("Program siap. Pilih berkas .mpkg atau .pkg untuk melihat pratinjau dan memilih output.")
+        self._log("Ready. Select a Wallpaper Engine .mpkg or .pkg file to preview and extract.")
 
     def _log(self, text: str):
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -295,12 +293,12 @@ class ConverterApp(ctk.CTk):
 
     def _choose_and_load_file(self):
         file_path = filedialog.askopenfilename(
-            title="Pilih Paket Wallpaper Engine",
+            title="Select Wallpaper Engine Package",
             filetypes=[
                 ("Wallpaper Engine Package", "*.mpkg;*.pkg"),
                 ("Mobile Package (.mpkg)", "*.mpkg"),
                 ("Desktop Package (.pkg)", "*.pkg"),
-                ("Semua File", "*.*")
+                ("All Files", "*.*")
             ]
         )
         if file_path:
@@ -310,72 +308,70 @@ class ConverterApp(ctk.CTk):
             self._load_package(file_path)
 
     def _load_package(self, file_path: str):
-        self._log(f"Memeriksa paket: {os.path.basename(file_path)}...")
+        self._log(f"Inspecting package: {os.path.basename(file_path)}...")
         try:
             info = inspect_we_package(file_path)
             self.package_info = info
 
-            # 1. Tampilkan Thumbnail
+            # 1. Display Thumbnail
             if info["thumbnail_bytes"]:
                 try:
                     pil_img = Image.open(io.BytesIO(info["thumbnail_bytes"]))
-                    # Resize proporsional max 300x180
                     pil_img.thumbnail((300, 180))
                     ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=pil_img.size)
                     self.thumb_label.configure(image=ctk_img, text="")
-                except Exception as e:
-                    self.thumb_label.configure(image=None, text="[Gagal memuat gambar preview]")
+                except Exception:
+                    self.thumb_label.configure(image=None, text="[Failed to decode preview image]")
             else:
-                self.thumb_label.configure(image=None, text="[Tidak ada file preview gambar]")
+                self.thumb_label.configure(image=None, text="[No preview thumbnail available]")
 
-            # 2. Tampilkan Metadata
-            self.lbl_title.configure(text=f"Judul: {info['title']}")
-            self.lbl_type.configure(text=f"Tipe: {info['type'].capitalize()}")
+            # 2. Display Metadata
+            self.lbl_title.configure(text=f"Title: {info['title']}")
+            self.lbl_type.configure(text=f"Type: {info['type'].capitalize()}")
             self.lbl_format.configure(text=f"Format: {info['format']}")
-            self.lbl_size.configure(text=f"Ukuran: {info['file_size'] / (1024*1024):.2f} MB")
+            self.lbl_size.configure(text=f"Size: {info['file_size'] / (1024*1024):.2f} MB")
 
-            # 3. Status Masalah Jam
+            # 3. Clock Status Box
             self.clock_alert_box.pack(fill="x", pady=6)
             if info["clock_widget_detected"]:
                 self.clock_alert_box.configure(fg_color=("#1e3a2f", "#142c22"))
                 self.lbl_clock_status.configure(
-                    text="⏱️ Widget Jam Ditemukan di Konfigurasi!\n"
-                         "Kabar baik: File video MP4 di dalam paket ini adalah feed asli BERSIH tanpa overlay jam!",
+                    text="⏱️ Clock Widget Detected in Settings!\n"
+                         "Great news: The raw MP4 video stream inside is 100% clean without this overlay!",
                     text_color=("#86efac", "#4ade80")
                 )
-                self._log("[INFO] Paket ini memiliki setting widget jam. Video MP4 yang diekstrak akan murni tanpa jam.")
+                self._log("[INFO] Clock widget detected. Extracted MP4 will be pristine without clock overlay.")
             elif info["type"].lower() == "scene":
                 self.clock_alert_box.configure(fg_color=("#3f2d1e", "#312215"))
                 self.lbl_clock_status.configure(
-                    text="⚠️ Wallpaper Tipe 'Scene' (Interaktif)\n"
-                         "Animasi dirender via script canvas, bukan video permanen. Disarankan rekam layar dengan OBS jika ingin MP4.",
+                    text="⚠️ 'Scene' Wallpaper (Interactive)\n"
+                         "Rendered via scripts/textures, not a static video. Screen recording (OBS) recommended for MP4.",
                     text_color=("#fde047", "#facc15")
                 )
-                self._log("[INFO] Tipe Scene terdeteksi.")
+                self._log("[INFO] Scene type detected.")
             else:
                 self.clock_alert_box.configure(fg_color=("#182b3a", "#142330"))
                 self.lbl_clock_status.configure(
-                    text="✅ Wallpaper Video Bersih\nTidak ada widget jam yang terkonfigurasi.",
+                    text="✅ Clean Video Wallpaper\nNo clock widget configured.",
                     text_color=("#7dd3fc", "#38bdf8")
                 )
 
-            # 4. Tampilkan Daftar File di Checklist
+            # 4. Render Checklist
             self._render_file_checklist(info["entries"])
-            self._log(f"Paket berhasil dimuat: {len(info['entries'])} berkas ditemukan ({info['video_count']} video).")
+            self._log(f"Package loaded: {len(info['entries'])} assets detected ({info['video_count']} video files).")
 
         except Exception as err:
-            messagebox.showerror("Error Membuka Paket", f"Gagal membaca paket: {err}")
-            self._log(f"[ERROR] Gagal membedah paket: {err}")
+            messagebox.showerror("Error Opening Package", f"Failed to inspect package: {err}")
+            self._log(f"[ERROR] Inspection failed: {err}")
 
     def _render_file_checklist(self, entries):
-        # Bersihkan widget lama
         for widget in self.file_list_frame.winfo_children():
             widget.destroy()
 
         self.entry_checkboxes.clear()
 
         if not entries:
-            ctk.CTkLabel(self.file_list_frame, text="Tidak ada file yang ditemukan di dalam arsip.", text_color="gray").pack(pady=20)
+            ctk.CTkLabel(self.file_list_frame, text="No files found inside the package.", text_color="gray").pack(pady=20)
             return
 
         for entry in entries:
@@ -384,13 +380,13 @@ class ConverterApp(ctk.CTk):
 
             cb_var = ctk.BooleanVar(value=entry.is_video())
             
-            # Badge kategori
+            # Badge category
             if entry.is_video():
                 badge_text, badge_color = "🎬 VIDEO", ("#15803d", "#166534")
             elif entry.is_audio():
                 badge_text, badge_color = "🎵 AUDIO", ("#7c3aed", "#6d28d9")
             elif entry.category == 'image':
-                badge_text, badge_color = "🖼️ GAMBAR", ("#b45309", "#92400e")
+                badge_text, badge_color = "🖼️ IMAGE", ("#b45309", "#92400e")
             elif entry.category == 'config':
                 badge_text, badge_color = "⚙️ CONFIG", ("#475569", "#334155")
             else:
@@ -437,12 +433,12 @@ class ConverterApp(ctk.CTk):
                 cb.deselect()
 
     def _choose_output_dir(self):
-        folder = filedialog.askdirectory(title="Pilih Folder Output", initialdir=self.out_entry.get())
+        folder = filedialog.askdirectory(title="Select Output Folder", initialdir=self.out_entry.get())
         if folder:
             self.output_dir = folder
             self.out_entry.delete(0, "end")
             self.out_entry.insert(0, folder)
-            self._log(f"Folder penyimpanan: {folder}")
+            self._log(f"Output folder set to: {folder}")
 
     def _open_output_folder(self):
         target = self.out_entry.get().strip()
@@ -460,7 +456,7 @@ class ConverterApp(ctk.CTk):
             else:
                 subprocess.run(["xdg-open", self.last_extracted_video])
         else:
-            messagebox.showinfo("Info", "Belum ada video yang diekstrak untuk diputar.")
+            messagebox.showinfo("Info", "No extracted video available to play.")
 
     def _set_ui_state(self, processing: bool):
         self.is_processing = processing
@@ -469,33 +465,33 @@ class ConverterApp(ctk.CTk):
         self.btn_browse_file.configure(state=state)
         self.btn_browse_out.configure(state=state)
         if processing:
-            self.btn_extract.configure(text="⏳ Sedang Mengekstrak...")
+            self.btn_extract.configure(text="⏳ Extracting...")
         else:
-            self.btn_extract.configure(text="🚀 Ekstrak Berkas Terpilih")
+            self.btn_extract.configure(text="🚀 Extract Selected Files")
 
     def _start_extraction_thread(self):
         if self.is_processing:
             return
 
         if not self.current_file_path or not os.path.isfile(self.current_file_path):
-            messagebox.showwarning("Peringatan", "Silakan pilih file .mpkg atau .pkg terlebih dahulu!")
+            messagebox.showwarning("Warning", "Please select a .mpkg or .pkg file first!")
             return
 
         selected_paths = [path for path, cb in self.entry_checkboxes.items() if cb.get() == 1]
         if not selected_paths:
-            messagebox.showwarning("Peringatan", "Silakan centang setidaknya satu berkas yang ingin diekstrak!")
+            messagebox.showwarning("Warning", "Please select at least one file to extract!")
             return
 
         out_path = self.out_entry.get().strip()
         if not out_path:
-            messagebox.showwarning("Peringatan", "Silakan tentukan folder output terlebih dahulu!")
+            messagebox.showwarning("Warning", "Please specify an output folder!")
             return
 
         # Naming mode
         combo_val = self.naming_combo.get()
-        if "Judul Asli" in combo_val:
+        if "Wallpaper Title" in combo_val:
             naming_mode = "title"
-        elif "Arsip" in combo_val:
+        elif "Archive" in combo_val:
             naming_mode = "archive"
         else:
             naming_mode = "original"
@@ -513,7 +509,7 @@ class ConverterApp(ctk.CTk):
 
     def _worker_custom_extraction(self, selected_paths: List[str], naming_mode: str):
         custom_title = self.package_info.get("title", "") if self.package_info else ""
-        self._log(f"\n=== Memulai ekstraksi {len(selected_paths)} berkas terpilih ===")
+        self._log(f"\n=== Starting extraction of {len(selected_paths)} selected files ===")
 
         def progress_cb(fraction: float):
             self.after(0, lambda v=fraction: self._update_progress_ui(v))
@@ -529,25 +525,25 @@ class ConverterApp(ctk.CTk):
                 progress_cb=progress_cb
             )
 
-            # Cek video untuk tombol putar
+            # Enable play button if video extracted
             vids = [f for f in results if f.lower().endswith(VIDEO_EXTENSIONS)]
             if vids:
                 self.last_extracted_video = vids[0]
                 self.after(0, lambda: self.btn_play_preview.configure(state="normal"))
 
             self._log("==========================================")
-            self._log(f"Selesai! Berhasil menyimpan {len(results)} berkas di: {self.output_dir}")
+            self._log(f"Extraction completed! Saved {len(results)} files to: {self.output_dir}")
             self._log("==========================================")
 
             if results:
                 self.after(0, lambda: messagebox.showinfo(
-                    "Ekstraksi Sukses",
-                    f"Berhasil mengekstrak {len(results)} berkas!\n\nFolder: {self.output_dir}"
+                    "Extraction Successful",
+                    f"Successfully extracted {len(results)} files!\n\nFolder: {self.output_dir}"
                 ))
 
         except Exception as e:
-            self._log(f"[ERROR] Gagal mengekstrak: {e}")
-            self.after(0, lambda err=str(e): messagebox.showerror("Gagal", f"Terjadi kesalahan: {err}"))
+            self._log(f"[ERROR] Extraction failed: {e}")
+            self.after(0, lambda err=str(e): messagebox.showerror("Error", f"An error occurred: {err}"))
 
         self.after(0, lambda: self._set_ui_state(False))
 
@@ -558,7 +554,7 @@ class ConverterApp(ctk.CTk):
 
     def _show_about_dialog(self):
         dialog = ctk.CTkToplevel(self)
-        dialog.title("Tentang, Lisensi & Solusi Jam")
+        dialog.title("About, License & Clock Fix")
         dialog.geometry("560x480")
         dialog.resizable(False, False)
         dialog.transient(self)
@@ -571,7 +567,7 @@ class ConverterApp(ctk.CTk):
 
         ctk.CTkLabel(
             dialog,
-            text="Versi 2.0 • Open Source MIT License • Author: Brony-PC",
+            text="Version 2.0 • Open Source MIT License • Author: Brony-PC",
             font=ctk.CTkFont(size=11), text_color="gray"
         ).pack(pady=(0, 10))
 
@@ -579,23 +575,23 @@ class ConverterApp(ctk.CTk):
         content_box.pack(fill="both", expand=True, padx=20, pady=(0, 14))
 
         info_text = (
-            "🛡️ 1. KEAMANAN & LISENSI RESMI MIT:\n"
-            "• Program ini 100% open-source dan bebas dari segala bentuk malware/virus.\n"
-            "• Menjalankan program langsung dari Python atau run.bat menjamin transparansi penuh dan bebas false-positive.\n\n"
-            "⏱️ 2. MASALAH 'JAM' (CLOCK WIDGET):\n"
-            "Banyak wallpaper di Wallpaper Engine (khususnya saat diekspor ke Android) memiliki tampilan jam digital/analog.\n"
-            "• Bagaimana sistem Wallpaper Engine bekerja:\n"
-            "  Jam di Wallpaper Engine adalah WIDGET TERPISAH (lapisan overlay di atas video atau script interaktif), BUKAN menempel permanen pada video aslinya.\n"
-            "• Mengapa program ini menyelesaikan masalah jam:\n"
-            "  Program ini mengekstrak langsung stream file MP4 mentah di dalam paket .mpkg. Hasilnya adalah VIDEO MURNI yang BERSIH dari overlay jam!\n\n"
-            "⚙️ 3. PENGATURAN OUTPUT:\n"
-            "• Anda dapat memilih secara spesifik file mana yang ingin diekstrak (Video saja, Audio saja, atau gambar pratinjau).\n"
-            "• Opsi penamaan cerdas memungkinkan file dinamai otomatis sesuai judul wallpaper di Steam Workshop."
+            "🛡️ 1. SECURITY & OFFICIAL MIT LICENSE:\n"
+            "• This utility is 100% open-source, offline, and free from any malware or adware.\n"
+            "• Running directly from Python or run.bat guarantees complete transparency and zero false positives.\n\n"
+            "⏱️ 2. THE CLOCK / TIME WIDGET FIX:\n"
+            "Many wallpapers in Wallpaper Engine (especially when exported to Android as .mpkg) display a digital/analog clock widget on screen.\n\n"
+            "• How Wallpaper Engine works:\n"
+            "  The clock in Wallpaper Engine is an INTERACTIVE OVERLAY WIDGET rendered on a separate layer, NOT permanently baked into the underlying video recording.\n\n"
+            "• How this extractor solves it:\n"
+            "  This tool reads the package structure and extracts the raw, pristine MP4 video stream directly. The result is a CLEAN VIDEO without any clock or date overlay!\n\n"
+            "⚙️ 3. OUTPUT CUSTOMIZATION:\n"
+            "• Inspect all internal files and choose what to extract (Video, Audio soundtrack, or Preview thumbnail).\n"
+            "• Smart naming lets you automatically name the output video using the original Steam Workshop title."
         )
         content_box.insert("1.0", info_text)
         content_box.configure(state="disabled")
 
-        ctk.CTkButton(dialog, text="Tutup", width=100, command=dialog.destroy).pack(pady=(0, 14))
+        ctk.CTkButton(dialog, text="Close", width=100, command=dialog.destroy).pack(pady=(0, 14))
 
 
 def launch_gui():

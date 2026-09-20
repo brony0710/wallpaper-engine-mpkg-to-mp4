@@ -3,11 +3,11 @@ Wallpaper Engine Package Extractor & Inspector (.mpkg / .pkg to MP4)
 Licensed under the MIT License.
 Copyright (c) 2026 Brony-PC.
 
-Modul ini mendukung:
-- Inspeksi instan tanpa ekstraksi (membaca project.json, thumbnail preview, daftar berkas)
-- Ekstraksi selektif (pengguna memilih berkas apa saja yang ingin dikeluarkan)
-- Opsi penamaan cerdas (menggunakan judul asli wallpaper, nama file, dll.)
-- Deteksi widget jam (clock overlay) di project.json
+This module provides:
+- Fast package inspection without full extraction (reads project.json, preview thumbnail, file listing)
+- Selective extraction (extract only user-selected assets)
+- Smart output naming (using wallpaper title, original name, or archive name)
+- Clock widget detection in project.json
 """
 
 import io
@@ -56,19 +56,19 @@ class PackageEntry:
 
 
 def read_string_i32(stream: io.BufferedReader) -> Optional[str]:
-    """Membaca string berawalan 4-byte uint32 panjang dalam format UTF-8."""
+    """Reads a 4-byte uint32 length-prefixed UTF-8 string."""
     raw_len = stream.read(4)
     if len(raw_len) < 4:
         return None
     (length,) = struct.unpack('<I', raw_len)
-    if length > 10 * 1024 * 1024:  # Batas wajar 10 MB
+    if length > 10 * 1024 * 1024:  # 10 MB safety limit
         return None
     data = stream.read(length)
     return data.decode('utf-8', errors='replace')
 
 
 def is_zip_container(file_path: str) -> bool:
-    """Mengecek apakah berkas merupakan arsip ZIP (header PK\x03\x04)."""
+    """Checks whether the file is a standard ZIP container (PK\x03\x04 header)."""
     try:
         with open(file_path, 'rb') as f:
             header = f.read(4)
@@ -79,30 +79,30 @@ def is_zip_container(file_path: str) -> bool:
 
 def parse_binary_package(stream: io.BufferedReader) -> Tuple[str, List[PackageEntry], int]:
     """
-    Mem-parsing struktur biner paket Wallpaper Engine.
-    Mengembalikan: (magic_version, entries, data_start_offset)
+    Parses a Wallpaper Engine binary package structure.
+    Returns: (magic_version, entries, data_start_offset)
     """
     magic = read_string_i32(stream)
     if not magic:
-        raise ValueError("Header paket tidak valid atau file kosong.")
+        raise ValueError("Invalid package header or empty file.")
 
     raw_count = stream.read(4)
     if len(raw_count) < 4:
-        raise ValueError("Header rusak: tidak dapat membaca jumlah entri file.")
+        raise ValueError("Corrupted header: unable to read entry count.")
     (entry_count,) = struct.unpack('<I', raw_count)
 
     if entry_count < 0 or entry_count > 100000:
-        raise ValueError(f"Jumlah file tidak wajar ({entry_count}). Format mungkin tidak didukung.")
+        raise ValueError(f"Abnormal file count ({entry_count}). Unsupported package format.")
 
     entries: List[PackageEntry] = []
     for _ in range(entry_count):
         full_path = read_string_i32(stream)
         if full_path is None:
-            raise ValueError("Struktur direktori rusak saat membaca nama file.")
+            raise ValueError("Corrupted directory structure while reading file path.")
         
         meta = stream.read(8)
         if len(meta) < 8:
-            raise ValueError("Struktur direktori rusak saat membaca metadata file.")
+            raise ValueError("Corrupted directory structure while reading entry metadata.")
         offset, length = struct.unpack('<II', meta)
         entries.append(PackageEntry(full_path, offset, length))
 
@@ -111,7 +111,7 @@ def parse_binary_package(stream: io.BufferedReader) -> Tuple[str, List[PackageEn
 
 
 def sanitize_filename(name: str) -> str:
-    """Membersihkan karakter ilegal dari nama berkas pada Windows."""
+    """Sanitizes illegal Windows characters from a filename."""
     clean = re.sub(r'[\\/*?:"<>|]', "", name)
     clean = clean.strip().replace(" ", "_")
     return clean or "wallpaper"
@@ -119,11 +119,11 @@ def sanitize_filename(name: str) -> str:
 
 def inspect_we_package(file_path: str) -> Dict[str, Any]:
     """
-    Melakukan inspeksi cepat terhadap isi paket tanpa mengekstrak seluruh file.
-    Mengekstrak metadata project.json dan gambar preview langsung dalam memori.
+    Performs quick package inspection without extracting files to disk.
+    Reads project.json metadata and preview thumbnail in-memory.
     """
     if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
+        raise FileNotFoundError(f"File not found: {file_path}")
 
     archive_name = os.path.splitext(os.path.basename(file_path))[0]
     result: Dict[str, Any] = {
@@ -143,7 +143,7 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
         "image_count": 0,
     }
 
-    # Kasus A: Arsip ZIP / Mobile Package
+    # Case A: ZIP Container
     if is_zip_container(file_path):
         result["format"] = "ZIP Container"
         with zipfile.ZipFile(file_path, 'r') as zf:
@@ -154,7 +154,7 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
                     entry = PackageEntry(name, 0, info.file_size)
                     result["entries"].append(entry)
 
-            # Cari project.json
+            # Find project.json
             for name in namelist:
                 if os.path.basename(name).lower() == 'project.json':
                     try:
@@ -165,7 +165,7 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
                         pass
                     break
 
-            # Cari preview image
+            # Find preview image
             for name in namelist:
                 low = os.path.basename(name).lower()
                 if low.startswith('preview') and low.endswith(IMAGE_EXTENSIONS):
@@ -175,14 +175,14 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
                         pass
                     break
 
-    # Kasus B: Binary PKG Wallpaper Engine
+    # Case B: Binary PKG (PKGV0001-0003, PKGM0014, etc.)
     else:
         with open(file_path, 'rb') as f:
             magic, entries, data_start = parse_binary_package(f)
             result["format"] = f"Binary ({magic})"
             result["entries"] = entries
 
-            # Cari project.json
+            # Find project.json
             for entry in entries:
                 if entry.clean_name.lower() == 'project.json':
                     f.seek(data_start + entry.offset)
@@ -194,7 +194,7 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
                         pass
                     break
 
-            # Cari preview image
+            # Find preview image
             for entry in entries:
                 low = entry.clean_name.lower()
                 if (low.startswith('preview') or 'preview' in low) and low.endswith(IMAGE_EXTENSIONS):
@@ -202,7 +202,7 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
                     result["thumbnail_bytes"] = f.read(entry.length)
                     break
 
-    # Hitung kategori
+    # Count categories
     for e in result["entries"]:
         if e.is_video():
             result["video_count"] += 1
@@ -215,7 +215,7 @@ def inspect_we_package(file_path: str) -> Dict[str, Any]:
 
 
 def _populate_project_metadata(pj: dict, result: dict):
-    """Mengekstrak judul, deskripsi, tipe wallpaper, dan memeriksa properti jam (clock)."""
+    """Extracts title, description, wallpaper type, and inspects clock widget properties."""
     if "title" in pj and pj["title"]:
         result["title"] = str(pj["title"])
     if "type" in pj and pj["type"]:
@@ -223,13 +223,16 @@ def _populate_project_metadata(pj: dict, result: dict):
     if "description" in pj and pj["description"]:
         result["description"] = str(pj["description"])
 
-    # Deteksi properti jam (clock widget / time widget)
+    # Detect clock / time widget properties
     general = pj.get("general", {})
     props = general.get("properties", {})
     clock_keys = [k for k in props.keys() if any(w in k.lower() for w in ['clock', 'time', 'jam', 'timer', 'date'])]
     if clock_keys:
         result["clock_widget_detected"] = True
-        result["clock_details"] = f"Ditemukan konfigurasi widget jam: {', '.join(clock_keys)}. Video MP4 di dalam paket adalah video asli tanpa widget ini."
+        result["clock_details"] = (
+            f"Clock widget properties found: {', '.join(clock_keys)}. "
+            "Good news: the raw MP4 video stream inside is 100% clean without this overlay!"
+        )
 
 
 def extract_custom_entries(
@@ -242,12 +245,12 @@ def extract_custom_entries(
     progress_cb: Optional[Callable[[float], None]] = None,
 ) -> List[str]:
     """
-    Mengekstrak berkas tertentu yang dipilih pengguna dari paket.
+    Extracts specific user-selected files from the package.
     
     naming_mode:
-      - 'title': Menggunakan judul wallpaper (misal: 'Nama_Wallpaper.mp4')
-      - 'original': Menggunakan nama asli berkas di dalam arsip
-      - 'archive': Menggunakan nama file paket .mpkg itu sendiri
+      - 'title': Uses wallpaper title (e.g. 'Wallpaper_Title.mp4')
+      - 'original': Uses the internal file name
+      - 'archive': Uses the .mpkg archive file name
     """
     def log(msg: str):
         if log_cb:
@@ -260,14 +263,14 @@ def extract_custom_entries(
             progress_cb(val)
 
     if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
+        raise FileNotFoundError(f"File not found: {file_path}")
 
     os.makedirs(output_dir, exist_ok=True)
     extracted_files: List[str] = []
 
     target_set = set(target_entry_paths)
     if not target_set:
-        log("[PERINGATAN] Tidak ada berkas yang dipilih untuk diekstrak.")
+        log("[WARNING] No files selected for extraction.")
         return []
 
     archive_stem = os.path.splitext(os.path.basename(file_path))[0]
@@ -276,7 +279,7 @@ def extract_custom_entries(
     total_items = len(target_set)
     processed = 0
 
-    # Kasus A: ZIP
+    # Case A: ZIP
     if is_zip_container(file_path):
         with zipfile.ZipFile(file_path, 'r') as zf:
             for item_path in target_set:
@@ -292,23 +295,23 @@ def extract_custom_entries(
                         dest_name = orig_name
 
                     dest_path = _get_unique_path(output_dir, dest_name)
-                    log(f"[PROSES] Mengekstrak '{orig_name}' -> '{os.path.basename(dest_path)}'...")
+                    log(f"[PROCESS] Extracting '{orig_name}' -> '{os.path.basename(dest_path)}'...")
 
                     with zf.open(item_path) as src, open(dest_path, 'wb') as dst:
                         while chunk := src.read(1024 * 1024):
                             dst.write(chunk)
 
                     size_mb = os.path.getsize(dest_path) / (1024 * 1024)
-                    log(f"[SUKSES] Berhasil disimpan: {dest_path} ({size_mb:.2f} MB)")
+                    log(f"[SUCCESS] Saved: {dest_path} ({size_mb:.2f} MB)")
                     extracted_files.append(dest_path)
                 except Exception as e:
-                    log(f"[ERROR] Gagal mengekstrak '{item_path}': {e}")
+                    log(f"[ERROR] Failed to extract '{item_path}': {e}")
 
                 processed += 1
                 update_progress(processed / total_items)
         return extracted_files
 
-    # Kasus B: Binary PKG
+    # Case B: Binary PKG
     with open(file_path, 'rb') as f:
         magic, entries, data_start = parse_binary_package(f)
         matched_entries = [e for e in entries if e.full_path in target_set or e.clean_name in target_set]
@@ -325,7 +328,7 @@ def extract_custom_entries(
                 dest_name = orig_name
 
             dest_path = _get_unique_path(output_dir, dest_name)
-            log(f"[PROSES] Mengekstrak '{orig_name}' ({entry.length / (1024*1024):.2f} MB) -> '{os.path.basename(dest_path)}'...")
+            log(f"[PROCESS] Extracting '{orig_name}' ({entry.length / (1024*1024):.2f} MB) -> '{os.path.basename(dest_path)}'...")
 
             f.seek(data_start + entry.offset)
             bytes_left = entry.length
@@ -339,7 +342,7 @@ def extract_custom_entries(
                     bytes_left -= len(chunk)
 
             size_mb = os.path.getsize(dest_path) / (1024 * 1024)
-            log(f"[SUKSES] Berhasil disimpan: {dest_path} ({size_mb:.2f} MB)")
+            log(f"[SUCCESS] Saved: {dest_path} ({size_mb:.2f} MB)")
             extracted_files.append(dest_path)
 
             processed += 1
@@ -349,7 +352,7 @@ def extract_custom_entries(
 
 
 def _get_unique_path(directory: str, filename: str) -> str:
-    """Menghasilkan path unik untuk menghindari menimpa file yang sudah ada."""
+    """Generates a unique destination path to avoid overwriting existing files."""
     base_stem, ext = os.path.splitext(filename)
     dest_path = os.path.join(directory, filename)
     counter = 1
@@ -365,16 +368,16 @@ def extract_media_from_we_package(
     log_cb: Optional[Callable[[str], None]] = None,
     progress_cb: Optional[Callable[[float], None]] = None,
 ) -> List[str]:
-    """Fungsi kompatibilitas ke belakang untuk mengekstrak seluruh video otomatis."""
+    """Compatibility function to automatically extract all videos."""
     info = inspect_we_package(file_path)
     video_paths = [e.full_path for e in info["entries"] if e.is_video()]
     if not video_paths:
         if log_cb:
             if info["type"].lower() == "scene" or any(e.clean_name.endswith('.tex') for e in info["entries"]):
-                log_cb("[INFO] Wallpaper ini adalah tipe 'Scene' (render script 2D/3D), bukan rekaman video.")
-                log_cb("[TIPS] Untuk tipe Scene, gunakan perekam layar (seperti OBS Studio) saat wallpaper diputar.")
+                log_cb("[INFO] This wallpaper is a 'Scene' type (real-time script canvas render, not a video recording).")
+                log_cb("[TIPS] For Scene wallpapers, using screen recording (e.g. OBS Studio) while playing is recommended.")
             else:
-                log_cb("[PERINGATAN] Tidak ditemukan file video di dalam paket ini.")
+                log_cb("[WARNING] No video files found in this package.")
         return []
 
     return extract_custom_entries(

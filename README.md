@@ -1,75 +1,107 @@
-# 🎬 Wallpaper Engine MPKG to MP4 Extractor & Inspector
+# 🎬 Wallpaper Engine MPKG to MP4 Inspector & Extractor
 
-Aplikasi desktop modern berbasis Python & **CustomTkinter** untuk mengekstrak, melihat pratinjau (*preview*), dan menyaring isi paket Wallpaper Engine (`.mpkg` untuk Android/Mobile dan `.pkg` untuk Desktop) secara selektif tanpa proses render ulang (*lossless extraction*).
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.txt)
+[![Python: 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![UI: CustomTkinter](https://img.shields.io/badge/GUI-CustomTkinter-blueviolet.svg)](https://github.com/TomSchimansky/CustomTkinter)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](#)
 
----
-
-## 🛡️ Lisensi & Jaminan Keamanan (Bebas Virus)
-
-Aplikasi ini dilisensikan secara resmi di bawah **[MIT License](LICENSE.txt)**.
-* **100% Open Source:** Seluruh baris kode dapat Anda periksa secara langsung. Tidak ada bagian yang dienkripsi (*obfuscated*) atau disembunyikan.
-* **100% Offline & Lokal:** Seluruh proses pembacaan file dan ekstraksi berjalan secara lokal di komputer Anda tanpa mengirim data ke internet.
-* **Bebas False Positive:** Dijalankan langsung melalui Python (atau `run.bat`), sehingga tidak akan memicu deteksi virus palsu dari Windows Defender.
+A modern desktop application built with Python & **CustomTkinter** to inspect, preview, and selectively extract raw video (`.mp4`, `.webm`, `.mkv`), audio, and thumbnails from Wallpaper Engine mobile and desktop packages (`.mpkg` and `.pkg`) without re-encoding (*lossless extraction*).
 
 ---
 
-## ⏱️ Solusi Masalah "Jam" (Clock Widget)
+## ⏱️ The Clock Widget Problem — Solved!
 
-Banyak wallpaper Wallpaper Engine (khususnya saat diekspor ke Android dalam format `.mpkg`) menampilkan jam digital atau analog.
-* **Bagaimana Wallpaper Engine Bekerja:** Tampilan jam di Wallpaper Engine adalah **Widget Overlay (lapisan terpisah)** atau skrip interaktif, **BUKAN** video yang menyatu secara permanen.
-* **Solusi Program Ini:**
-  1. Program membaca paket biner dan mendeteksi konfigurasi jam di dalam `project.json`.
-  2. Program mengekstrak berkas `.mp4` asli secara murni dari sumbernya, sehingga video yang Anda dapatkan adalah **VIDEO BERSIH TANPA JAM**.
+Many users exporting wallpapers from Wallpaper Engine to mobile devices (`.mpkg`) notice a digital or analog clock widget displayed on screen.
 
----
-
-## ✨ Fitur Utama Versi 2.0
-
-1. **🖼️ Pratinjau Visual & Metadata**:
-   * Menampilkan gambar thumbnail preview wallpaper (`preview.jpg` / `preview.png`) langsung di dalam antarmuka.
-   * Menampilkan judul wallpaper, tipe wallpaper (Video/Scene), ukuran paket, dan status konfigurasi jam.
-2. **📋 Pemilihan & Checklist Berkas Output**:
-   * Menampilkan seluruh daftar berkas di dalam paket (Video, Audio, Gambar, Config).
-   * Tombol filter cepat: **🎬 Hanya Video**, **🎵 Video + Audio**, **Semua**, atau **Batal Pilih**.
-   * Anda bebas memilih berkas apa saja yang ingin diekstrak ke disk.
-3. **🏷️ Opsi Penamaan Output Fleksibel**:
-   * *Gunakan Judul Asli Wallpaper* (misal: `Cyberpunk_Night.mp4` dari metadata `project.json`).
-   * *Gunakan Nama Berkas Asli* (misal: `materials_scene.mp4`).
-   * *Gunakan Nama File Arsip .mpkg*.
-4. **▶️ Tombol Putar Video Langsung**:
-   * Setelah selesai diekstrak, Anda bisa langsung memutar video hasil konversi di media player komputer Anda dengan satu klik.
+* **How Wallpaper Engine Works:** In Wallpaper Engine, clock and date displays are **interactive overlay widgets** rendered on a separate canvas layer at runtime, **NOT** permanently baked into the video recording.
+* **How this Tool Solves It:** This tool parses the package's internal binary container directly and extracts the raw, underlying `.mp4` video stream. The resulting MP4 file is **100% clean without any clock, date, or battery widget overlay!**
 
 ---
 
-## 🚀 Cara Menjalankan
+## ✨ Features
 
-### Cara 1: Launcher Satu-Klik Windows (Paling Mudah)
-Cukup **klik ganda (double-click)** pada file:
+* **🖼️ Visual Preview & Metadata**:
+  * Displays the embedded wallpaper thumbnail (`preview.jpg` / `preview.png`) in-memory before extraction.
+  * Reads `project.json` to show the original Steam Workshop title, wallpaper type, and clock widget settings.
+* **📋 Selective Asset Checklist**:
+  * Lists all internal assets (Videos, Soundtracks, Images/Textures, Configs) with file sizes and category badges.
+  * Quick filter buttons: **🎬 Video Only**, **🎵 Video + Audio**, **Select All**, and **Deselect All**.
+* **🏷️ Smart Output Naming**:
+  * *Use Wallpaper Title (Recommended)*: Automatically names the video after the original Steam Workshop title (e.g. `Cyberpunk_City_4K.mp4`).
+  * *Use Internal Package Filename*.
+  * *Use .mpkg Archive Filename*.
+* **⚡ Native Binary Parser**:
+  * Supports Wallpaper Engine binary headers (`PKGV0001`, `PKGV0002`, `PKGV0003`, `PKGM0014`, etc.).
+  * Automatic fallback for ZIP-based mobile packages and nested sub-packages.
+* **▶️ Instant Video Playback**:
+  * Launch and verify extracted videos directly in your default media player with one click.
+* **🧵 Thread-Safe GUI**:
+  * Heavy file I/O runs in isolated background threads so the UI never freezes or stutters.
+
+---
+
+## 🚀 Getting Started
+
+### Method 1: One-Click Windows Launcher (Easiest)
+Simply **double-click** on:
 ```text
 run.bat
 ```
-Script akan otomatis memeriksa Python dan pustaka yang dibutuhkan (`customtkinter`, `pillow`), lalu membuka jendela aplikasi.
+The script will check your Python installation, automatically install required packages (`customtkinter`, `pillow`) if missing, and launch the application.
 
-### Cara 2: Menjalankan via Terminal / Command Prompt
+### Method 2: Command Line (GUI)
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/brony0710/wallpaper-engine-mpkg-to-mp4.git
+   cd wallpaper-engine-mpkg-to-mp4
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run the application:
+   ```bash
+   python main.py
+   ```
+
+### Method 3: CLI Batch Mode (Headless)
+Extract videos directly from your terminal without opening the GUI:
 ```bash
-cd "C:\Users\Brony-PC\Documents\ngoding lawak 2\mpkg to mp4"
-python main.py
+python main.py "path/to/wallpaper.mpkg" -o "path/to/output_folder"
 ```
 
 ---
 
-## 📄 Struktur File Proyek
+## 🛡️ Security & Antivirus Transparency
+
+* **100% Open Source:** All source code is completely open, readable, and unobfuscated.
+* **100% Offline:** The app runs entirely on your local machine and never connects to external servers or collects data.
+* **Zero False Positives:** Because it runs directly via Python scripts (rather than an unsigned compiled `.exe`), it will never trigger false positive virus warnings from Windows Defender or third-party antivirus software.
+* **MIT Licensed:** Free for personal and commercial use under the [MIT License](LICENSE.txt).
+
+---
+
+## 📁 Project Structure
 
 ```text
-mpkg to mp4/
-├── LICENSE.txt       # Lisensi resmi open-source MIT
-├── README.md         # Petunjuk dan dokumentasi lengkap
-├── requirements.txt  # Daftar dependensi Python (customtkinter, darkdetect, pillow)
-├── run.bat           # Launcher cepat satu-klik Windows
-├── extractor.py      # Core engine parser & inspector Wallpaper Engine
-├── gui.py            # Antarmuka grafis CustomTkinter modern dengan preview
-└── main.py           # Entry point utama
+wallpaper-engine-mpkg-to-mp4/
+├── LICENSE.txt       # Official MIT License
+├── README.md         # Documentation and guide
+├── requirements.txt  # Python package dependencies
+├── run.bat           # Windows one-click launcher
+├── extractor.py      # Core binary parser & package inspector
+├── gui.py            # Modern CustomTkinter GUI interface
+└── main.py           # Application entry point (GUI & CLI)
 ```
 
 ---
-Dibuat dengan ❤️ untuk kemudahan pengelolaan koleksi Wallpaper Engine Anda.
+
+## 🤝 Contributing
+
+Contributions, feature suggestions, and bug reports are welcome! Feel free to open an issue or submit a pull request.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See [LICENSE.txt](LICENSE.txt) for more information.

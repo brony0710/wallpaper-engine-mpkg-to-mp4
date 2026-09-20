@@ -4,34 +4,34 @@ cd /d "%~dp0"
 
 echo ============================================================
 echo   Wallpaper Engine MPKG to MP4 Converter
-echo   Lisensi: MIT License (Open Source)
-echo   Status: 100%% Aman ^& Bersih dari Virus
+echo   License: MIT License (Open Source)
+echo   Status: 100%% Safe ^& Clean
 echo ============================================================
 echo.
 
-:: Cek Python
+:: Check Python
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Python belum terinstall atau belum masuk PATH!
-    echo Silakan install Python dari https://www.python.org/ (centang "Add Python to PATH").
+    echo [ERROR] Python is not installed or not added to PATH!
+    echo Please install Python from https://www.python.org/ (check "Add Python to PATH").
     echo.
     pause
     exit /b 1
 )
 
-:: Cek dependensi
-python -c "import customtkinter" >nul 2>&1
+:: Check dependencies
+python -c "import customtkinter, PIL" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [INFO] Menginstall modul yang dibutuhkan (CustomTkinter)...
+    echo [INFO] Installing required dependencies (CustomTkinter, Pillow)...
     pip install -r requirements.txt
     if %errorlevel% neq 0 (
-        echo [ERROR] Gagal menginstall dependensi. Periksa koneksi internet Anda.
+        echo [ERROR] Failed to install dependencies. Please check your internet connection.
         pause
         exit /b 1
     )
 )
 
-echo [INFO] Membuka Antarmuka Grafis (CustomTkinter GUI)...
+echo [INFO] Launching CustomTkinter GUI...
 start "" pythonw main.py
 
 exit /b 0

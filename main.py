@@ -25,7 +25,7 @@ def run_cli(input_files, output_dir):
 
     total_extracted = 0
     for idx, f in enumerate(input_files, 1):
-        print(f"\n[{idx}/{len(input_files)}] Memproses: {f}")
+        print(f"\n[{idx}/{len(input_files)}] Processing: {f}")
         try:
             results = extract_media_from_we_package(
                 file_path=f,
@@ -38,16 +38,16 @@ def run_cli(input_files, output_dir):
             print(f"[ERROR] {err}")
 
     print("\n" + "=" * 60)
-    print(f"Selesai! Total video diekstrak: {total_extracted}")
-    print(f"Folder penyimpanan: {os.path.abspath(output_dir)}")
+    print(f"Finished! Total videos extracted: {total_extracted}")
+    print(f"Destination folder: {os.path.abspath(output_dir)}")
     print("=" * 60)
 
 
 def main():
     if len(sys.argv) > 1 and not sys.argv[1].startswith("--gui"):
         parser = argparse.ArgumentParser(description="Wallpaper Engine MPKG to MP4 Extractor")
-        parser.add_argument("files", nargs="+", help="Daftar file .mpkg atau .pkg")
-        parser.add_argument("-o", "--output", default="extracted_videos", help="Folder tujuan ekstraksi")
+        parser.add_argument("files", nargs="+", help="List of .mpkg or .pkg files")
+        parser.add_argument("-o", "--output", default="extracted_videos", help="Target output folder")
         args = parser.parse_args()
         run_cli(args.files, args.output)
     else:
