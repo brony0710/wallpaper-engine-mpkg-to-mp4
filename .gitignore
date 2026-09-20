@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Output & Test files
+extracted_videos/
+extracted_test/
+*.mp4
+*.mpkg
+*.pkg
+
+# Environments
+.venv/
+venv/
+env/
+
+# OS generated
+Thumbs.db
+Desktop.ini
+.DS_Store
