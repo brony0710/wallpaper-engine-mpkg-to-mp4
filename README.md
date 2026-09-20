@@ -13,6 +13,10 @@ A modern desktop application built with Python & **CustomTkinter** to inspect, p
 
 To export and get the `.mpkg` file from Wallpaper Engine:
 
+<p align="center">
+  <img src="assets/how_to_export_mpkg.png" alt="How to Export .mpkg from Wallpaper Engine" width="380">
+</p>
+
 1. **Right-click** on the wallpaper in Wallpaper Engine that you want to export.
 2. Select **"Send to Mobile Device"**.
 3. Click **"Export .mpkg"** and save the file to your computer.
