@@ -632,7 +632,12 @@ class ConverterApp(ctk.CTk):
             "  The fix is to disable and strip away the clock, date, and any other non-video elements. This tool extracts only the pristine MP4 video stream directly, giving you a 100% clean video with all widgets removed!\n\n"
             "⚙️ 3. OUTPUT CUSTOMIZATION:\n"
             "• Inspect all internal files and choose what to extract (Video, Audio soundtrack, or Preview thumbnail).\n"
-            "• Smart naming lets you automatically name the output video using the original Steam Workshop title."
+            "• Smart naming lets you automatically name the output video using the original Steam Workshop title.\n\n"
+            "📥 4. HOW TO GET .MPKG / .PKG FILES:\n"
+            "1. Right-click the wallpaper in Wallpaper Engine that you want to convert.\n"
+            "2. Select 'Send to Mobile Device'.\n"
+            "3. Click 'Export .mpkg' and save it to your computer.\n"
+            "• (For desktop .pkg: Right-click wallpaper -> 'Open in Explorer' -> find scene.pkg)."
         )
         content_box.insert("1.0", info_text)
         content_box.configure(state="disabled")

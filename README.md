@@ -9,6 +9,18 @@ A modern desktop application built with Python & **CustomTkinter** to inspect, p
 
 ---
 
+## 📥 How to Get the .mpkg / .pkg File from Wallpaper Engine
+
+To export and get the `.mpkg` file from Wallpaper Engine:
+
+1. **Right-click** on the wallpaper in Wallpaper Engine that you want to export.
+2. Select **"Send to Mobile Device"**.
+3. Click **"Export .mpkg"** and save the file to your computer.
+
+> 💡 **Tip for Desktop `.pkg` files:** You can also right-click any wallpaper in Wallpaper Engine and choose **"Open in Explorer"** to locate the `scene.pkg` file directly.
+
+---
+
 ## ⏱️ The Clock Widget Problem — Solved!
 
 Many users exporting wallpapers from Wallpaper Engine to mobile devices (`.mpkg`) notice an unwanted clock, date, day of week, or weather widget displayed on top of the wallpaper.
