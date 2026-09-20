@@ -379,8 +379,8 @@ class ConverterApp(ctk.CTk):
             if info["clock_widget_detected"]:
                 self.clock_alert_box.configure(fg_color=("#1e3a2f", "#142c22"))
                 self.lbl_clock_status.configure(
-                    text="⏱️ Clock Widget Detected in Settings!\n"
-                         "Great news: The raw MP4 video stream inside is 100% clean without this overlay!",
+                    text="⏱️ Clock / Date Widgets Detected!\n"
+                         "Solution applied: Non-video elements (clock, date, etc.) are disabled. Extracted MP4 is 100% clean!",
                     text_color=("#86efac", "#4ade80")
                 )
                 self._log("[INFO] Clock widget detected. Extracted MP4 will be pristine without clock overlay.")
@@ -624,12 +624,12 @@ class ConverterApp(ctk.CTk):
             "🛡️ 1. SECURITY & OFFICIAL MIT LICENSE:\n"
             "• This utility is 100% open-source, offline, and free from any malware or adware.\n"
             "• Running directly from Python or run.bat guarantees complete transparency and zero false positives.\n\n"
-            "⏱️ 2. THE CLOCK / TIME WIDGET FIX:\n"
-            "Many wallpapers in Wallpaper Engine (especially when exported to Android as .mpkg) display a digital/analog clock widget on screen.\n\n"
-            "• How Wallpaper Engine works:\n"
-            "  The clock in Wallpaper Engine is an INTERACTIVE OVERLAY WIDGET rendered on a separate layer, NOT permanently baked into the underlying video recording.\n\n"
-            "• How this extractor solves it:\n"
-            "  This tool reads the package structure and extracts the raw, pristine MP4 video stream directly. The result is a CLEAN VIDEO without any clock or date overlay!\n\n"
+            "⏱️ 2. THE CLOCK / DATE WIDGET FIX:\n"
+            "Many wallpapers in Wallpaper Engine (especially when exported to Android as .mpkg) display a clock, date, day of week, or battery widget on screen.\n\n"
+            "• The Cause:\n"
+            "  These widgets are separate interactive overlay elements that are completely unrelated to the underlying video footage.\n\n"
+            "• The Solution:\n"
+            "  The fix is to disable and strip away the clock, date, and any other non-video elements. This tool extracts only the pristine MP4 video stream directly, giving you a 100% clean video with all widgets removed!\n\n"
             "⚙️ 3. OUTPUT CUSTOMIZATION:\n"
             "• Inspect all internal files and choose what to extract (Video, Audio soundtrack, or Preview thumbnail).\n"
             "• Smart naming lets you automatically name the output video using the original Steam Workshop title."

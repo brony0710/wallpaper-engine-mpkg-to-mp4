@@ -11,10 +11,10 @@ A modern desktop application built with Python & **CustomTkinter** to inspect, p
 
 ## ⏱️ The Clock Widget Problem — Solved!
 
-Many users exporting wallpapers from Wallpaper Engine to mobile devices (`.mpkg`) notice a digital or analog clock widget displayed on screen.
+Many users exporting wallpapers from Wallpaper Engine to mobile devices (`.mpkg`) notice an unwanted clock, date, day of week, or battery widget displayed on top of the wallpaper.
 
-* **How Wallpaper Engine Works:** In Wallpaper Engine, clock and date displays are **interactive overlay widgets** rendered on a separate canvas layer at runtime, **NOT** permanently baked into the video recording.
-* **How this Tool Solves It:** This tool parses the package's internal binary container directly and extracts the raw, underlying `.mp4` video stream. The resulting MP4 file is **100% clean without any clock, date, or battery widget overlay!**
+* **The Cause:** In Wallpaper Engine, elements like digital/analog clocks, date indicators, and day displays are **interactive overlay widgets**—they are completely separate from and unrelated to the underlying video footage.
+* **The Fix:** The solution is to **disable and strip away the clock, date, and any other non-video overlay elements** that are unrelated to the video. This tool achieves this automatically by parsing the package container and extracting only the pure, raw `.mp4` video stream. The result is a **100% clean video** with all clock and date widgets completely removed!
 
 ---
 
