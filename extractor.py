@@ -1,7 +1,7 @@
 """
 Wallpaper Engine Package Extractor & Inspector (.mpkg / .pkg to MP4)
+Copyright (c) 2026 brony0710 (https://github.com/brony0710).
 Licensed under the MIT License.
-Copyright (c) 2026 Brony-PC.
 
 This module provides:
 - Fast package inspection without full extraction (reads project.json, preview thumbnail, file listing)

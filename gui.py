@@ -1,7 +1,8 @@
 """
 Wallpaper Engine MPKG to MP4 Converter - Modern CustomTkinter GUI with Preview & Selective Output
+Copyright (c) 2026 brony0710.
+Author: brony0710 (https://github.com/brony0710)
 Licensed under the MIT License.
-Copyright (c) 2026 Brony-PC.
 """
 
 import io
@@ -9,6 +10,7 @@ import os
 import subprocess
 import sys
 import threading
+import webbrowser
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -31,9 +33,9 @@ class ConverterApp(ctk.CTk):
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
 
-        self.title("Wallpaper Engine MPKG to MP4 Extractor & Preview")
-        self.geometry("980x740")
-        self.minsize(860, 640)
+        self.title("Wallpaper Engine MPKG to MP4 Extractor & Preview - by brony0710")
+        self.geometry("980x760")
+        self.minsize(860, 660)
 
         # State Data
         self.current_file_path: Optional[str] = None
@@ -48,10 +50,10 @@ class ConverterApp(ctk.CTk):
     def _create_ui(self):
         # 1. Header Frame
         header = ctk.CTkFrame(self, corner_radius=12, fg_color=("#2b2b2b", "#1a1a1a"))
-        header.pack(fill="x", padx=16, pady=(14, 8))
+        header.pack(fill="x", padx=16, pady=(12, 6))
 
         top_row = ctk.CTkFrame(header, fg_color="transparent")
-        top_row.pack(fill="x", padx=16, pady=(10, 4))
+        top_row.pack(fill="x", padx=16, pady=(10, 2))
 
         title_lbl = ctk.CTkLabel(
             top_row,
@@ -64,8 +66,8 @@ class ConverterApp(ctk.CTk):
         # About & Clock Info Button
         btn_about = ctk.CTkButton(
             top_row,
-            text="ℹ️ License & Clock Fix",
-            width=160,
+            text="ℹ️ About & License",
+            width=140,
             height=28,
             font=ctk.CTkFont(size=11, weight="bold"),
             fg_color=("#374151", "#27272a"),
@@ -74,13 +76,29 @@ class ConverterApp(ctk.CTk):
         )
         btn_about.pack(side="right")
 
+        # Subtitle with Developer / Copyright info
+        sub_row = ctk.CTkFrame(header, fg_color="transparent")
+        sub_row.pack(fill="x", padx=16, pady=(0, 8))
+
         sub_lbl = ctk.CTkLabel(
-            header,
+            sub_row,
             text="Preview package assets, selectively extract media, and retrieve pristine MP4 video without clock widgets.",
             font=ctk.CTkFont(size=12),
             text_color="gray"
         )
-        sub_lbl.pack(anchor="w", padx=16, pady=(0, 10))
+        sub_lbl.pack(side="left")
+
+        author_badge = ctk.CTkLabel(
+            sub_row,
+            text="by brony0710",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=("#38bdf8", "#0284c7"),
+            fg_color=("#1e293b", "#0f172a"),
+            corner_radius=6,
+            padx=8,
+            pady=2
+        )
+        author_badge.pack(side="right")
 
         # 2. File & Output Path Bar
         path_bar = ctk.CTkFrame(self, corner_radius=10)
@@ -115,18 +133,18 @@ class ConverterApp(ctk.CTk):
 
         # 3. Main Body Split Area (Left: Preview & Metadata, Right: File Selector & Output Options)
         body = ctk.CTkFrame(self, fg_color="transparent")
-        body.pack(fill="both", expand=True, padx=16, pady=6)
+        body.pack(fill="both", expand=True, padx=16, pady=4)
 
         # LEFT COLUMN: Preview & Info (Fixed width ~330px)
         left_col = ctk.CTkFrame(body, width=330, corner_radius=12)
         left_col.pack(side="left", fill="y", padx=(0, 8), pady=0)
         left_col.pack_propagate(False)
 
-        ctk.CTkLabel(left_col, text="🖼️ Wallpaper Preview", font=ctk.CTkFont(size=13, weight="bold")).pack(anchor="w", padx=12, pady=(10, 4))
+        ctk.CTkLabel(left_col, text="🖼️ Wallpaper Preview", font=ctk.CTkFont(size=13, weight="bold")).pack(anchor="w", padx=12, pady=(8, 4))
 
         # Thumbnail Image Display
-        self.thumb_frame = ctk.CTkFrame(left_col, height=190, fg_color=("#18181b", "#121214"), corner_radius=8)
-        self.thumb_frame.pack(fill="x", padx=12, pady=(0, 8))
+        self.thumb_frame = ctk.CTkFrame(left_col, height=180, fg_color=("#18181b", "#121214"), corner_radius=8)
+        self.thumb_frame.pack(fill="x", padx=12, pady=(0, 6))
         self.thumb_frame.pack_propagate(False)
 
         self.thumb_label = ctk.CTkLabel(self.thumb_frame, text="No preview available\n(Please select a package first)", text_color="gray")
@@ -134,7 +152,7 @@ class ConverterApp(ctk.CTk):
 
         # Metadata Card
         meta_frame = ctk.CTkScrollableFrame(left_col, corner_radius=8, fg_color=("#27272a", "#1e1e24"))
-        meta_frame.pack(fill="both", expand=True, padx=12, pady=(0, 10))
+        meta_frame.pack(fill="both", expand=True, padx=12, pady=(0, 8))
 
         self.lbl_title = ctk.CTkLabel(meta_frame, text="Title: -", font=ctk.CTkFont(size=13, weight="bold"), anchor="w", wraplength=280)
         self.lbl_title.pack(fill="x", pady=2)
@@ -166,7 +184,7 @@ class ConverterApp(ctk.CTk):
 
         # Filter Header
         filter_header = ctk.CTkFrame(right_col, fg_color="transparent")
-        filter_header.pack(fill="x", padx=12, pady=(10, 4))
+        filter_header.pack(fill="x", padx=12, pady=(8, 4))
 
         ctk.CTkLabel(
             filter_header, text="📋 Package Contents (Select files to extract):",
@@ -199,7 +217,7 @@ class ConverterApp(ctk.CTk):
 
         # Scrollable Frame for File Checklist
         self.file_list_frame = ctk.CTkScrollableFrame(right_col, corner_radius=8, fg_color=("#18181b", "#141416"))
-        self.file_list_frame.pack(fill="both", expand=True, padx=12, pady=(0, 8))
+        self.file_list_frame.pack(fill="both", expand=True, padx=12, pady=(0, 6))
 
         self.empty_file_lbl = ctk.CTkLabel(
             self.file_list_frame,
@@ -210,7 +228,7 @@ class ConverterApp(ctk.CTk):
 
         # Output Naming Format
         naming_row = ctk.CTkFrame(right_col, fg_color="transparent")
-        naming_row.pack(fill="x", padx=12, pady=(0, 8))
+        naming_row.pack(fill="x", padx=12, pady=(0, 6))
 
         ctk.CTkLabel(naming_row, text="Output Naming:", font=ctk.CTkFont(size=12, weight="bold")).pack(side="left", padx=(0, 8))
         self.naming_combo = ctk.CTkComboBox(
@@ -233,8 +251,8 @@ class ConverterApp(ctk.CTk):
         self.btn_extract = ctk.CTkButton(
             bottom_bar,
             text="🚀 Extract Selected Files",
-            height=40,
-            font=ctk.CTkFont(size=14, weight="bold"),
+            height=38,
+            font=ctk.CTkFont(size=13, weight="bold"),
             fg_color=("#16a34a", "#15803d"),
             hover_color=("#15803d", "#166534"),
             command=self._start_extraction_thread
@@ -244,7 +262,7 @@ class ConverterApp(ctk.CTk):
         self.btn_open_folder = ctk.CTkButton(
             bottom_bar,
             text="📂 Open Output Folder",
-            height=40,
+            height=38,
             font=ctk.CTkFont(size=12),
             command=self._open_output_folder
         )
@@ -253,7 +271,7 @@ class ConverterApp(ctk.CTk):
         self.btn_play_preview = ctk.CTkButton(
             bottom_bar,
             text="▶️ Play Video",
-            height=40,
+            height=38,
             width=110,
             font=ctk.CTkFont(size=12),
             fg_color=("#4338ca", "#3730a3"),
@@ -275,12 +293,37 @@ class ConverterApp(ctk.CTk):
         self.lbl_progress.pack(side="right")
 
         # 5. Log Console
-        log_frame = ctk.CTkFrame(self, height=100, corner_radius=10)
-        log_frame.pack(fill="x", padx=16, pady=(2, 12))
+        log_frame = ctk.CTkFrame(self, height=85, corner_radius=10)
+        log_frame.pack(fill="x", padx=16, pady=(2, 4))
         log_frame.pack_propagate(False)
 
         self.log_box = ctk.CTkTextbox(log_frame, font=ctk.CTkFont(family="Consolas", size=10), wrap="word")
         self.log_box.pack(fill="both", expand=True, padx=6, pady=6)
+
+        # 6. Persistent Copyright Footer Bar
+        footer = ctk.CTkFrame(self, fg_color="transparent")
+        footer.pack(fill="x", padx=18, pady=(2, 6))
+
+        copy_lbl = ctk.CTkLabel(
+            footer,
+            text="© 2026 brony0710 • All rights reserved under the MIT License",
+            font=ctk.CTkFont(size=11),
+            text_color="gray"
+        )
+        copy_lbl.pack(side="left")
+
+        github_link = ctk.CTkButton(
+            footer,
+            text="github.com/brony0710",
+            font=ctk.CTkFont(size=11, underline=True),
+            text_color=("#38bdf8", "#0284c7"),
+            fg_color="transparent",
+            hover_color=("#27272a", "#1e1e24"),
+            width=130,
+            height=20,
+            command=lambda: webbrowser.open("https://github.com/brony0710/wallpaper-engine-mpkg-to-mp4")
+        )
+        github_link.pack(side="right")
 
         self._log("Ready. Select a Wallpaper Engine .mpkg or .pkg file to preview and extract.")
 
@@ -554,8 +597,8 @@ class ConverterApp(ctk.CTk):
 
     def _show_about_dialog(self):
         dialog = ctk.CTkToplevel(self)
-        dialog.title("About, License & Clock Fix")
-        dialog.geometry("560x480")
+        dialog.title("About & License")
+        dialog.geometry("560x500")
         dialog.resizable(False, False)
         dialog.transient(self)
         dialog.grab_set()
@@ -567,14 +610,17 @@ class ConverterApp(ctk.CTk):
 
         ctk.CTkLabel(
             dialog,
-            text="Version 2.0 • Open Source MIT License • Author: Brony-PC",
-            font=ctk.CTkFont(size=11), text_color="gray"
+            text="Version 2.0 • MIT License\nCreated & Maintained by brony0710",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=("#38bdf8", "#0284c7")
         ).pack(pady=(0, 10))
 
         content_box = ctk.CTkTextbox(dialog, font=ctk.CTkFont(size=12), wrap="word")
         content_box.pack(fill="both", expand=True, padx=20, pady=(0, 14))
 
         info_text = (
+            "© 2026 brony0710. All rights reserved under the MIT License.\n"
+            "Project Repository: https://github.com/brony0710/wallpaper-engine-mpkg-to-mp4\n\n"
             "🛡️ 1. SECURITY & OFFICIAL MIT LICENSE:\n"
             "• This utility is 100% open-source, offline, and free from any malware or adware.\n"
             "• Running directly from Python or run.bat guarantees complete transparency and zero false positives.\n\n"
@@ -591,7 +637,17 @@ class ConverterApp(ctk.CTk):
         content_box.insert("1.0", info_text)
         content_box.configure(state="disabled")
 
-        ctk.CTkButton(dialog, text="Close", width=100, command=dialog.destroy).pack(pady=(0, 14))
+        btn_row = ctk.CTkFrame(dialog, fg_color="transparent")
+        btn_row.pack(pady=(0, 14))
+
+        ctk.CTkButton(
+            btn_row,
+            text="Visit GitHub",
+            width=120,
+            command=lambda: webbrowser.open("https://github.com/brony0710/wallpaper-engine-mpkg-to-mp4")
+        ).pack(side="left", padx=6)
+
+        ctk.CTkButton(btn_row, text="Close", width=100, command=dialog.destroy).pack(side="left", padx=6)
 
 
 def launch_gui():

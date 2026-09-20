@@ -1,9 +1,10 @@
 @echo off
-title Wallpaper Engine MPKG to MP4 Extractor
+title Wallpaper Engine MPKG to MP4 Extractor - by brony0710
 cd /d "%~dp0"
 
 echo ============================================================
 echo   Wallpaper Engine MPKG to MP4 Converter
+echo   Created by brony0710 (https://github.com/brony0710)
 echo   License: MIT License (Open Source)
 echo   Status: 100%% Safe ^& Clean
 echo ============================================================

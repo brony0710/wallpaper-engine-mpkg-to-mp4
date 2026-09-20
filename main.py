@@ -1,7 +1,7 @@
 """
 Wallpaper Engine MPKG to MP4 Converter - Main Entry Point
+Copyright (c) 2026 brony0710 (https://github.com/brony0710).
 Licensed under the MIT License.
-Copyright (c) 2026 Brony-PC.
 """
 
 import argparse
@@ -20,7 +20,7 @@ from extractor import extract_media_from_we_package
 def run_cli(input_files, output_dir):
     print("=" * 60)
     print("Wallpaper Engine MPKG/PKG to MP4 Extractor (CLI Mode)")
-    print("MIT License - Copyright (c) 2026 Brony-PC")
+    print("MIT License - Copyright (c) 2026 brony0710")
     print("=" * 60)
 
     total_extracted = 0

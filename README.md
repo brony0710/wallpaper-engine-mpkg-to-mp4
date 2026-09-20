@@ -100,6 +100,11 @@ wallpaper-engine-mpkg-to-mp4/
 
 Contributions, feature suggestions, and bug reports are welcome! Feel free to open an issue or submit a pull request.
 
+## 👤 Author & Copyright
+
+* **Developer:** [brony0710](https://github.com/brony0710)
+* **Copyright:** © 2026 brony0710. All rights reserved under the MIT License.
+
 ---
 
 ## 📄 License
